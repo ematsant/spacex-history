@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LaunchList } from './pages/LaunchList';
-// Futuramente importarei a página de detalhes aqui
+import { LaunchDetails } from './pages/LaunchDetails'; // Importa a nova página
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LaunchList />} />
-        {/* Futuramente adicionarei a rota de detalhes aqui */}
+        {/* :launchId é um parâmetro dinâmico */}
+        <Route path="/launch/:launchId" element={<LaunchDetails />} />
       </Routes>
     </Router>
   );
