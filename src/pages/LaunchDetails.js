@@ -1,30 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { GraphQLClient, gql } from 'graphql-request';
+import axios from 'axios';
 import { Box, Heading, Text, Spinner, Center, Image, Flex, Tag, Button, VStack, Icon } from '@chakra-ui/react';
 import { FaYoutube } from 'react-icons/fa';
-
-const API_ENDPOINT = 'https://api.spacex.land/graphql/';
-const client = new GraphQLClient(API_ENDPOINT);
-
-const GET_LAUNCH_DETAILS_QUERY = gql`
-  query GetLaunch($launchId: ID!) {
-    launch(id: $launchId) {
-      id
-      mission_name
-      details
-      launch_success
-      flight_number
-      launch_date_utc
-      links {
-        mission_patch
-        article_link
-        video_link
-        wikipedia
-      }
-    }
-  }
-`;
 
 export function LaunchDetails() {
   const { launchId } = useParams();
@@ -35,8 +13,8 @@ export function LaunchDetails() {
     const fetchLaunch = async () => {
       setLoading(true);
       try {
-        const data = await client.request(GET_LAUNCH_DETAILS_QUERY, { launchId });
-        setLaunch(data.launch);
+        const result = await axios.get(`https://api.spacexdata.com/v4/launches/${launchId}`);
+        setLaunch(result.data);
       } catch (error) {
         console.error("Erro ao buscar detalhes do lançamento:", error);
       } finally {
@@ -62,8 +40,8 @@ export function LaunchDetails() {
       </Button>
       <Flex direction={{ base: 'column', md: 'row' }} gap={8}>
         <Image
-          src={launch.links.mission_patch}
-          alt={`Patch for ${launch.mission_name}`}
+          src={launch.links.patch.large}
+          alt={`Patch for ${launch.name}`}
           boxSize={{ base: '150px', md: '300px' }}
           objectFit="contain"
           mx="auto"
@@ -71,13 +49,13 @@ export function LaunchDetails() {
         />
         <Box>
           <Flex align="center" gap={4} mb={2}>
-            <Tag colorScheme={launch.launch_success ? 'green' : 'red'} size="lg">
-              {launch.launch_success ? 'Sucesso' : 'Falha'}
+            <Tag colorScheme={launch.success ? 'green' : 'red'} size="lg">
+              {launch.success ? 'Sucesso' : 'Falha'}
             </Tag>
-            <Heading as="h1" size="xl">{launch.mission_name}</Heading>
+            <Heading as="h1" size="xl">{launch.name}</Heading>
           </Flex>
           <Text fontSize="lg" color="gray.500" mb={4}>
-            <strong>Data:</strong> {launch.launch_date_utc ? new Date(launch.launch_date_utc).toLocaleString('pt-BR', {
+            <strong>Data:</strong> {launch.date_utc ? new Date(launch.date_utc).toLocaleString('pt-BR', {
               year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
             }) : 'Data não disponível'}
           </Text>
@@ -87,13 +65,13 @@ export function LaunchDetails() {
           </Text>
           <VStack align="start" spacing={3} mt={6}>
             <Heading as="h3" size="md">Links Úteis:</Heading>
-            {launch.links.video_link && (
-              <Button as="a" href={launch.links.video_link} target="_blank" colorScheme="red" leftIcon={<Icon as={FaYoutube} />}>
+            {launch.links.webcast && (
+              <Button as="a" href={launch.links.webcast} target="_blank" colorScheme="red" leftIcon={<Icon as={FaYoutube} />}>
                 Assistir no YouTube
               </Button>
             )}
-            {launch.links.article_link && (
-              <Button as="a" href={launch.links.article_link} target="_blank" colorScheme="blue">
+            {launch.links.article && (
+              <Button as="a" href={launch.links.article} target="_blank" colorScheme="blue">
                 Ler o Artigo
               </Button>
             )}

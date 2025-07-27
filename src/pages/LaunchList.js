@@ -1,25 +1,7 @@
 import { useState, useEffect } from 'react';
-import { GraphQLClient, gql } from 'graphql-request';
+import axios from 'axios';
 import { Box, Heading, VStack, Spinner, Center } from '@chakra-ui/react';
 import { LaunchItem } from '../components/LaunchItem';
-
-const API_ENDPOINT = 'https://api.spacex.land/graphql/';
-const client = new GraphQLClient(API_ENDPOINT);
-
-const GET_LAUNCHES_QUERY = gql`
-  query {
-    launchesPast(limit: 500, sort: "launch_date_unix", order: "desc") {
-      id
-      mission_name
-      launch_date_utc
-      launch_success
-      flight_number
-      links {
-        mission_patch_small
-      }
-    }
-  }
-`;
 
 export function LaunchList() {
   const [launches, setLaunches] = useState([]);
@@ -28,10 +10,19 @@ export function LaunchList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await client.request(GET_LAUNCHES_QUERY);
-        setLaunches(data.launchesPast);
+        // Usamos axios.post para o endpoint de query da v4
+        const result = await axios.post('https://api.spacexdata.com/v4/launches/query', {
+          query: {}, // Nenhum filtro, queremos todos
+          options: {
+            sort: {
+              flight_number: 'desc' // Ordena pelo número do voo, mais recentes primeiro
+            },
+            limit: 500
+          }
+        });
+        setLaunches(result.data.docs);
       } catch (error) {
-        console.error("Erro ao buscar dados com GraphQL:", error);
+        console.error("Erro ao buscar dados:", error);
       } finally {
         setLoading(false);
       }

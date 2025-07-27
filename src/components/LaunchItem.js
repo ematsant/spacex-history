@@ -18,8 +18,8 @@ export function LaunchItem({ launch }) {
         <Flex>
           <Box flex="1">
             <Flex align="baseline">
-              <Tag size="sm" colorScheme={launch.launch_success ? "green" : "red"}>
-                {launch.launch_success ? "Success" : "Failure"}
+              <Tag size="sm" colorScheme={launch.success ? "green" : "red"}>
+                {launch.success ? "Success" : "Failure"}
               </Tag>
               <Box
                 color="gray.500"
@@ -40,18 +40,18 @@ export function LaunchItem({ launch }) {
               isTruncated
               fontSize="xl"
             >
-              {launch.mission_name}
+              {launch.name}
             </Text>
             <Text fontSize="sm" color="gray.600">
-              {new Date(launch.launch_date_utc).toLocaleDateString("pt-BR")}
+              {new Date(launch.date_utc).toLocaleDateString("pt-BR")}
             </Text>
           </Box>
           <Spacer />
           <Image
-              boxSize="100px"
-              objectFit="contain"
-              src={launch.links.mission_patch_small || defaultImage}
-              alt={`Patch for ${launch.mission_name}`}
+            boxSize="100px"
+            objectFit="contain"
+            src={launch.links?.patch?.small || defaultImage}
+            alt={`Patch for ${launch.name}`}
           />
         </Flex>
       </Box>
