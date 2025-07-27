@@ -9,19 +9,29 @@ export function LaunchList() { // Nome da função alterado
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await axios.get('https://api.spacexdata.com/v5/launches');
-        setLaunches(result.data.reverse());
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      // --- INÍCIO DA MUDANÇA ---
+      const result = await axios.post('https://api.spacexdata.com/v5/launches/query', {
+        query: {},
+        options: {
+          sort: {
+            date_unix: 'desc'
+          },
+          limit: 500 // Garante que pegamos todos os lançamentos
+        }
+      });
+      setLaunches(result.data.docs); // Os dados agora vêm em result.data.docs
+      // --- FIM DA MUDANÇA ---
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   return (
     <Box p={5} bg="gray.50" minH="100vh">
