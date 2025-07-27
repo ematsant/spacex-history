@@ -1,7 +1,25 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { GraphQLClient, gql } from 'graphql-request';
 import { Box, Heading, VStack, Spinner, Center } from '@chakra-ui/react';
 import { LaunchItem } from '../components/LaunchItem';
+
+const API_ENDPOINT = 'https://api.spacex.land/graphql/';
+const client = new GraphQLClient(API_ENDPOINT);
+
+const GET_LAUNCHES_QUERY = gql`
+  query {
+    launchesPast(limit: 500, sort: "launch_date_unix", order: "desc") {
+      id
+      mission_name
+      launch_date_utc
+      launch_success
+      flight_number
+      links {
+        mission_patch_small
+      }
+    }
+  }
+`;
 
 export function LaunchList() {
   const [launches, setLaunches] = useState([]);
@@ -10,27 +28,17 @@ export function LaunchList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Usando axios.post para o endpoint de query
-        const result = await axios.post('https://api.spacexdata.com/v5/launches/query', {
-          query: {}, // Nenhum filtro específico, queremos todos
-          options: {
-            sort: {
-              date_unix: 'desc' // Ordena pela data, mais recentes primeiro
-            },
-            limit: 500 // Um limite alto para garantir que pegamos todos
-          }
-        });
-        // Na resposta da query, os dados da lista vêm dentro da propriedade "docs"
-        setLaunches(result.data.docs);
+        const data = await client.request(GET_LAUNCHES_QUERY);
+        setLaunches(data.launchesPast);
       } catch (error) {
-        console.error("Erro ao buscar dados:", error);
+        console.error("Erro ao buscar dados com GraphQL:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []); // O array vazio [] garante que a busca aconteça apenas uma vez
+  }, []);
 
   return (
     <Box p={5} bg="gray.50" minH="100vh">
@@ -40,13 +48,7 @@ export function LaunchList() {
 
       {loading ? (
         <Center h="50vh">
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
+          <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
         </Center>
       ) : (
         <VStack spacing={4} align="stretch" maxW="4xl" mx="auto">

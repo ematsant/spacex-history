@@ -1,11 +1,10 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom'; // Importa o Link
+import { Link as RouterLink } from 'react-router-dom';
 import { Box, Image, Text, Flex, Tag, Spacer } from '@chakra-ui/react';
 import defaultImage from '../assets/default-rocket.png';
 
 export function LaunchItem({ launch }) {
   return (
-    // Envolve o Box com o RouterLink
     <RouterLink to={`/launch/${launch.id}`}>
       <Box
         borderWidth="1px"
@@ -13,14 +12,14 @@ export function LaunchItem({ launch }) {
         overflow="hidden"
         p={4}
         boxShadow="md"
-        _hover={{ boxShadow: "lg", transform: "translateY(-2px)" }} // Efeito visual
+        _hover={{ boxShadow: "lg", transform: "translateY(-2px)" }}
         transition="all 0.2s"
       >
         <Flex>
-          <Box>
+          <Box flex="1">
             <Flex align="baseline">
-              <Tag size="sm" colorScheme={launch.success ? "green" : "red"}>
-                {launch.success ? "Success" : "Failure"}
+              <Tag size="sm" colorScheme={launch.launch_success ? "green" : "red"}>
+                {launch.launch_success ? "Success" : "Failure"}
               </Tag>
               <Box
                 color="gray.500"
@@ -41,18 +40,18 @@ export function LaunchItem({ launch }) {
               isTruncated
               fontSize="xl"
             >
-              {launch.name}
+              {launch.mission_name}
             </Text>
             <Text fontSize="sm" color="gray.600">
-              {new Date(launch.date_utc).toLocaleDateString("pt-BR")}
+              {new Date(launch.launch_date_utc).toLocaleDateString("pt-BR")}
             </Text>
           </Box>
           <Spacer />
           <Image
               boxSize="100px"
               objectFit="contain"
-              src={launch.links.patch.small || defaultImage}
-              alt={`Patch for ${launch.name}`}
+              src={launch.links.mission_patch_small || defaultImage}
+              alt={`Patch for ${launch.mission_name}`}
           />
         </Flex>
       </Box>
